@@ -1,4 +1,6 @@
 import CampaignReceipt from './CampaignReceipt.jsx';
+import { useEffect, useState } from 'react';
+import { getIPFSUrl } from '../services/ipfs.js';
 
 function short(address) {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
@@ -14,7 +16,22 @@ function Summary({ items }) {
   );
 }
 
-export default function PortfolioPage({ account, demo, campaigns, votes, onConnect, onVote }) {
+export default function PortfolioPage({
+  account,
+  demo,
+  campaigns,
+  votes,
+  onConnect,
+  onVote,
+  onFinalize,
+}) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(timer);
+  }, []);
+
   if (!account) {
     return (
       <div className="empty">
@@ -29,7 +46,8 @@ export default function PortfolioPage({ account, demo, campaigns, votes, onConne
   const total = mine.reduce((sum, campaign) => sum + campaign.mine, 0);
   const pending = mine.reduce((sum, campaign) => (
     sum + campaign.ms.filter((milestone, index) => (
-      milestone.st === 'voting' && votes[`${campaign.id}-${index}`] === undefined
+      milestone.st === 'voting'
+      && votes[`${campaign.id}-${milestone.index ?? index}`] === undefined
     )).length
   ), 0);
 
@@ -40,16 +58,20 @@ export default function PortfolioPage({ account, demo, campaigns, votes, onConne
       <Summary items={[
         [total, 'POL given'],
         [mine.length, 'campaigns backed'],
-        [Object.keys(votes).length + 7, 'votes cast'],
+        [Object.keys(votes).length, 'votes cast'],
         [pending, 'waiting on you'],
       ]} />
       <div className="rack">
         {mine.length ? mine.map((campaign) => {
-          const milestoneIndex = campaign.ms.findIndex((milestone) => milestone.st === 'voting');
-          const milestone = milestoneIndex >= 0 ? campaign.ms[milestoneIndex] : null;
+          const arrayIndex = campaign.ms.findIndex((item) => item.st === 'voting');
+          const milestone = arrayIndex >= 0 ? campaign.ms[arrayIndex] : null;
+          const milestoneIndex = milestone ? milestone.index ?? arrayIndex : -1;
           const voted = milestone ? votes[`${campaign.id}-${milestoneIndex}`] : undefined;
+          const proofUrl = milestone?.proofCid ? getIPFSUrl(milestone.proofCid) : '';
           const totalVotes = milestone ? milestone.yes + milestone.no : 0;
           const yesPercent = totalVotes ? Math.round((milestone.yes / totalVotes) * 100) : 0;
+          const votingExpired = !demo && milestone?.deadline > 0
+            && now > (milestone.deadline + 3) * 1000;
 
           return (
             <CampaignReceipt key={campaign.id} campaign={campaign}>
@@ -57,7 +79,11 @@ export default function PortfolioPage({ account, demo, campaigns, votes, onConne
               {milestone && (
                 <div className="vbox">
                   <strong>Receipt for “{milestone.n}”</strong><br />
-                  <a href="https://ipfs.io/" target="_blank" rel="noopener">Open the store receipt on IPFS</a>
+                  {proofUrl ? (
+                    <a href={proofUrl} target="_blank" rel="noopener noreferrer">
+                      Open the store receipt on IPFS
+                    </a>
+                  ) : <span className="stub">No receipt attachment is available.</span>}
                   <div className="tally" aria-hidden="true">
                     <i style={{ width: `${yesPercent}%`, background: '#7fd6a6' }} />
                     <i style={{ width: `${100 - yesPercent}%`, background: '#ff9d86' }} />
@@ -66,13 +92,22 @@ export default function PortfolioPage({ account, demo, campaigns, votes, onConne
                     {totalVotes ? `${yesPercent}% yes, ${100 - yesPercent}% no. ` : 'No votes yet. '}
                     Your vote weighs {campaign.mine}.
                   </div>
+                  {votingExpired && (
+                    <button className="btn go finalize-button" onClick={() => onFinalize(campaign.id, milestoneIndex)}>
+                      Finalize milestone
+                    </button>
+                  )}
                   {voted === undefined ? (
-                    <div className="vote-actions">
-                      <button className="btn yes" onClick={() => onVote(campaign.id, milestoneIndex, true)}>Receipt is real, pay out</button>
-                      <button className="btn no" onClick={() => onVote(campaign.id, milestoneIndex, false)}>Reject and flag fraud</button>
-                    </div>
+                    votingExpired
+                      ? <p className="vote-result"><strong>Voting has closed. Anyone can finalize this milestone.</strong></p>
+                      : (
+                        <div className="vote-actions">
+                          <button className="btn yes" onClick={() => onVote(campaign.id, milestoneIndex, true)}>Receipt is real, pay out</button>
+                          <button className="btn no" onClick={() => onVote(campaign.id, milestoneIndex, false)}>Reject and flag fraud</button>
+                        </div>
+                      )
                   ) : (
-                    <p className="vote-result"><strong>You voted {voted ? 'yes' : 'no'}. Votes are final.</strong></p>
+                    <p className="vote-result"><strong>{voted === 'cast' ? 'You voted. Votes are final.' : `You voted ${voted ? 'yes' : 'no'}. Votes are final.`}</strong></p>
                   )}
                 </div>
               )}

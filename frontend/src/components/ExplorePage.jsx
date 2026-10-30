@@ -28,6 +28,7 @@ export default function ExplorePage({ campaigns, onDonate }) {
             <button className="btn go" onClick={() => onDonate(campaign)}>Donate to this campaign</button>
           </CampaignReceipt>
         ))}
+        {!campaigns.length && <p className="empty">No campaigns have been published on this registry yet.</p>}
       </div>
     </>
   );

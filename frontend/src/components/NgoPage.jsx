@@ -49,14 +49,36 @@ export default function NgoPage({ account, demo, campaigns, onConnect, onProof, 
       ]} />
       <div className="rack">
         {ownedCampaigns.length ? ownedCampaigns.map((campaign) => {
-          const pendingIndex = campaign.ms.findIndex((milestone) => milestone.st === 'pending');
-          const pendingMilestone = pendingIndex >= 0 ? campaign.ms[pendingIndex] : null;
+          const pendingArrayIndex = campaign.ms.findIndex((milestone) => milestone.st === 'pending');
+          const pendingMilestone = pendingArrayIndex >= 0 ? campaign.ms[pendingArrayIndex] : null;
+          const pendingIndex = pendingMilestone
+            ? pendingMilestone.index ?? pendingArrayIndex
+            : -1;
           const votingIndex = campaign.ms.findIndex((milestone) => milestone.st === 'voting');
           const votingMilestone = votingIndex >= 0 ? campaign.ms[votingIndex] : null;
 
           return (
             <CampaignReceipt key={campaign.id} campaign={campaign}>
-              {pendingMilestone?.seed && (
+              {campaign.seedAdvancePct > 0 && (
+                <div className="vbox">
+                  <strong>{campaign.seedClaimed ? 'Seed advance claimed' : 'Seed advance'}</strong>
+                  <div className="stub vbox-note">
+                    {campaign.seedClaimed
+                      ? `${campaign.seedAdvancePct}% advance has been claimed.`
+                      : `Unlocks once ${campaign.seedAmount} POL is raised. Now at ${campaign.raised}.`}
+                  </div>
+                  {!campaign.seedClaimed && (
+                    <button
+                      className="btn go"
+                      disabled={campaign.canClaimSeed ?? campaign.raised < campaign.seedAmount}
+                      onClick={() => onClaim(campaign.id)}
+                    >
+                      Claim seed advance
+                    </button>
+                  )}
+                </div>
+              )}
+              {pendingMilestone?.seed && campaign.seedAdvancePct === undefined && (
                 <div className="vbox">
                   <strong>Seed advance</strong>
                   <div className="stub vbox-note">Unlocks once {pendingMilestone.amt} POL is raised. Now at {campaign.raised}.</div>
@@ -75,11 +97,10 @@ export default function NgoPage({ account, demo, campaigns, onConnect, onProof, 
                   />
                   <button
                     className="btn go"
-                    onClick={() => onProof(
-                      campaign.id,
-                      pendingIndex,
-                      document.getElementById(`pf${campaign.id}-${pendingIndex}`)?.files?.[0],
-                    )}
+                    onClick={(event) => {
+                      const file = event.currentTarget.parentElement.querySelector('input[type="file"]')?.files?.[0];
+                      onProof(campaign.id, pendingIndex, file);
+                    }}
                   >
                     Submit receipt
                   </button>

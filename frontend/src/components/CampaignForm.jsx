@@ -17,6 +17,10 @@ export default function CampaignForm({ onPublish }) {
           <textarea name="story" rows="4" placeholder="Who needs water, and what will this fix?" />
         </label>
         <label>
+          Campaign image (optional)
+          <input name="banner" type="file" accept="image/*" />
+        </label>
+        <label>
           Funding target in POL
           <input name="target" type="number" min="1" required />
         </label>

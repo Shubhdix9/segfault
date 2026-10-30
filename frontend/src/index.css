@@ -272,6 +272,21 @@ h2 {
   margin-top: 10px;
 }
 
+.campaign-story {
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+
+.proof-attachment {
+  margin: 3px 0 8px;
+  text-align: right;
+  font-size: 12px;
+}
+
+.proof-attachment a {
+  font-weight: 700;
+}
+
 .vbox {
   border: 2px solid var(--ink);
   padding: 12px;
@@ -461,6 +476,31 @@ input[type='file'] {
 
 .campaign-create {
   margin-top: 56px;
+}
+
+.authorize-form {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.authorize-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.authorize-form .btn {
+  justify-self: start;
+}
+
+.finalize-button {
+  margin-top: 10px;
+}
+
+.rcpt .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .admin-actions {

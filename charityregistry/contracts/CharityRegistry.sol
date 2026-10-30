@@ -38,6 +38,7 @@ contract CharityRegistry {
     uint256 public campaignCounter;
     mapping(uint256 => Campaign) public campaigns;
     mapping(uint256 => mapping(uint256 => Milestone)) public milestones;
+    mapping(uint256 => uint256) public escrowBalances;
     
     // Donor Tracking for Portfolio Dashboard
     mapping(uint256 => mapping(address => uint256)) public donorContributions; // campaignId => donor => amount
@@ -108,8 +109,16 @@ contract CharityRegistry {
         uint256[] memory _milestoneAmounts
     ) external onlyVerifiedNGO returns (uint256) {
         require(_milestoneDescs.length == _milestoneAmounts.length, "Mismatched milestone inputs");
+        require(_milestoneDescs.length > 0, "At least one milestone is required");
         require(_targetAmount > 0, "Target must be > 0");
         require(_seedAdvancePct <= 50, "Seed advance cannot exceed 50%");
+        uint256 seedBudget = _seedAdvanceAmount(_targetAmount, _seedAdvancePct);
+        uint256 milestoneBudget;
+        for (uint256 i = 0; i < _milestoneAmounts.length; i++) {
+            require(_milestoneAmounts[i] > 0, "Milestone amount must be > 0");
+            milestoneBudget += _milestoneAmounts[i];
+        }
+        require(milestoneBudget <= _targetAmount - seedBudget, "Campaign commitments exceed target");
 
         campaignCounter++;
         Campaign storage c = campaigns[campaignCounter];
@@ -144,6 +153,7 @@ contract CharityRegistry {
         require(msg.value > 0, "Must donate POL");
 
         c.totalRaised += msg.value;
+        escrowBalances[_campaignId] += msg.value;
         donorContributions[_campaignId][msg.sender] += msg.value;
 
         // Track campaign in donor's history array if first time donating
@@ -160,10 +170,12 @@ contract CharityRegistry {
         Campaign storage c = campaigns[_campaignId];
         require(msg.sender == c.ngoAddress, "Not NGO");
         require(!c.seedClaimed, "Seed already claimed");
-        require(c.totalRaised >= (c.targetAmount * c.seedAdvancePct) / 100, "Target seed threshold not met");
+        uint256 seedAmount = _seedAdvanceAmount(c.targetAmount, c.seedAdvancePct);
+        require(c.totalRaised >= seedAmount, "Target seed threshold not met");
+        require(escrowBalances[_campaignId] >= seedAmount, "Insufficient campaign escrow");
 
         c.seedClaimed = true;
-        uint256 seedAmount = (c.totalRaised * c.seedAdvancePct) / 100;
+        escrowBalances[_campaignId] -= seedAmount;
         
         (bool success, ) = c.ngoAddress.call{value: seedAmount}("");
         require(success, "Transfer failed");
@@ -175,6 +187,13 @@ contract CharityRegistry {
     function submitProof(uint256 _campaignId, uint256 _milestoneId, string memory _ipfsCID) external {
         Campaign storage c = campaigns[_campaignId];
         require(msg.sender == c.ngoAddress, "Not NGO");
+        require(_milestoneId < c.milestoneCount, "Milestone does not exist");
+        if (_milestoneId > 0) {
+            require(
+                milestones[_campaignId][_milestoneId - 1].status == MilestoneStatus.Disbursed,
+                "Previous milestone not disbursed"
+            );
+        }
         
         Milestone storage m = milestones[_campaignId][_milestoneId];
         require(m.status == MilestoneStatus.Pending, "Milestone not pending");
@@ -219,8 +238,10 @@ contract CharityRegistry {
         );
 
         if (m.yesVotes > m.noVotes) {
-            m.status = MilestoneStatus.Disbursed;
             uint256 payoutAmount = m.amount;
+            require(escrowBalances[_campaignId] >= payoutAmount, "Insufficient campaign escrow");
+            m.status = MilestoneStatus.Disbursed;
+            escrowBalances[_campaignId] -= payoutAmount;
             
             (bool success, ) = campaigns[_campaignId].ngoAddress.call{value: payoutAmount}("");
             require(success, "Payout transfer failed");
@@ -260,5 +281,14 @@ contract CharityRegistry {
             m.noVotes,
             m.votingDeadline
         );
+    }
+
+    function _seedAdvanceAmount(uint256 _targetAmount, uint256 _seedAdvancePct)
+        private
+        pure
+        returns (uint256)
+    {
+        return (_targetAmount / 100) * _seedAdvancePct
+            + ((_targetAmount % 100) * _seedAdvancePct) / 100;
     }
 }

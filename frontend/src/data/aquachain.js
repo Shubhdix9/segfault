@@ -1,10 +1,25 @@
-export const CONFIG = { address: '', admin: '', chainId: 80002 };
+export const CONFIG = {
+  address: import.meta.env.VITE_CONTRACT_ADDRESS || '',
+  admin: import.meta.env.VITE_ADMIN_ADDRESS || '',
+  chainId: Number(import.meta.env.VITE_CHAIN_ID || 80002),
+  rpcUrl: import.meta.env.VITE_RPC_URL || 'https://rpc-amoy.polygon.technology',
+};
 
 export const ABI = [
+  'function admin() view returns (address)',
+  'function campaignCounter() view returns (uint256)',
+  'function campaigns(uint256) view returns (uint256 id,address ngoAddress,string ipfsMetaCID,uint256 targetAmount,uint256 totalRaised,uint256 seedAdvancePct,bool seedClaimed,uint256 milestoneCount,bool isActive)',
+  'function milestones(uint256,uint256) view returns (string description,uint256 amount,string ipfsProofCID,uint8 status,uint256 yesVotes,uint256 noVotes,uint256 votingDeadline)',
+  'function donorContributions(uint256,address) view returns (uint256)',
+  'function getDonorCampaigns(address) view returns (uint256[])',
+  'function hasVoted(uint256,uint256,address) view returns (bool)',
+  'function isVerifiedNGO(address) view returns (bool)',
+  'function authorizeNGO(address)',
   'function submitProof(uint256,uint256,string)',
   'function claimSeedAdvance(uint256)',
   'function donate(uint256) payable',
   'function voteOnMilestone(uint256,uint256,bool)',
+  'function finalizeMilestone(uint256,uint256)',
   'function createCampaign(string,uint256,uint256,string[],uint256[]) returns (uint256)',
 ];
 
@@ -74,4 +89,6 @@ export const milestoneLabels = {
   voting: 'VOTING',
   pending: 'AWAITING RECEIPT',
   locked: 'LOCKED',
+  approved: 'APPROVED',
+  rejected: 'REJECTED',
 };
