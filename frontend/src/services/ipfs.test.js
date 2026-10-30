@@ -18,11 +18,11 @@ test('uploads metadata using the same-origin API and returns an IPFS URL', async
     globalThis.fetch = originalFetch;
   });
 
-  const result = await uploadJSONToIPFS({ title: 'AquaChain' }, 'Campaign');
+  const result = await uploadJSONToIPFS({ title: 'WellChain' }, 'Campaign');
   assert.equal(request.url, '/api/ipfs/json');
   assert.equal(request.options.method, 'POST');
   assert.deepEqual(JSON.parse(request.options.body), {
-    content: { title: 'AquaChain' },
+    content: { title: 'WellChain' },
     title: 'Campaign',
   });
   assert.equal(result.cid, 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3vj6u5x5s2k25zg3foe7f7f2a');

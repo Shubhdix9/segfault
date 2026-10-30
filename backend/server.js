@@ -118,8 +118,8 @@ export function createPinataServer({
     const form = new FormData();
     form.append('file', new Blob([bytes], { type: contentType }), fileName);
     form.append('pinataMetadata', JSON.stringify({
-      name: `AquaChain_${fileName}`,
-      keyvalues: { platform: 'AquaChain', type: 'receipt' },
+      name: `WellChain_${fileName}`,
+      keyvalues: { platform: 'WellChain', type: 'receipt' },
     }));
     form.append('pinataOptions', JSON.stringify({ cidVersion: 1 }));
 
@@ -143,8 +143,8 @@ export function createPinataServer({
       body: JSON.stringify({
         pinataContent: content,
         pinataMetadata: {
-          name: `AquaChain_Meta_${title}`,
-          keyvalues: { platform: 'AquaChain', type: 'campaign_metadata' },
+          name: `WellChain_Meta_${title}`,
+          keyvalues: { platform: 'WellChain', type: 'campaign_metadata' },
         },
       }),
     });
@@ -265,6 +265,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const server = createPinataServer();
   server.on('listening', () => {
     const address = server.address();
-    console.log(`AquaChain API listening on http://localhost:${address.port}`);
+    console.log(`WellChain API listening on http://localhost:${address.port}`);
   });
 }

@@ -1,4 +1,4 @@
-import { milestoneLabels } from '../data/aquachain.js';
+import { milestoneLabels } from '../data/WellChain.js';
 import { getIPFSUrl } from '../services/ipfs.js';
 
 function MilestoneLine({ milestone }) {

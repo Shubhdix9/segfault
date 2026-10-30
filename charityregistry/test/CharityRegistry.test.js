@@ -26,7 +26,7 @@ describe("CharityRegistry Unit & Integration Tests", function () {
 
       await expect(
         registry.connect(stranger).createCampaign("QmMeta123", ethers.parseEther("2.0"), 10, descs, amounts)
-      ).to.be.revertedWith("AquaChain: Wallet is not a verified NGO");
+      ).to.be.revertedWith("WellChain: Wallet is not a verified NGO");
     });
 
     it("Should allow admin to authorize an NGO", async function () {
@@ -84,7 +84,7 @@ describe("CharityRegistry Unit & Integration Tests", function () {
 
       expect(await registry.donorContributions(1, donor1.address)).to.equal(ethers.parseEther("2.0"));
       expect(await registry.escrowBalances(1)).to.equal(ethers.parseEther("5.0"));
-      
+
       const donor1History = await registry.getDonorCampaigns(donor1.address);
       expect(donor1History.length).to.equal(1);
       expect(donor1History[0]).to.equal(1n);

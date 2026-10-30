@@ -7,7 +7,7 @@ import NgoPage from './components/NgoPage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import DonateDialog from './components/DonateDialog.jsx';
 import Toast from './components/Toast.jsx';
-import { ABI, CONFIG, initialCampaigns, initialNgos } from './data/aquachain.js';
+import { ABI, CONFIG, initialCampaigns, initialNgos } from './data/WellChain.js';
 import { uploadFileToIPFS, uploadJSONToIPFS } from './services/ipfs.js';
 import { createReadContract, readRegistry } from './services/registry.js';
 

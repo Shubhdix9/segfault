@@ -7,7 +7,7 @@ export default function Header({ account, demo, onConnect }) {
 
   return (
     <header>
-      <a className="logo" href="#explore">AquaChain</a>
+      <a className="logo" href="#explore">WellChain</a>
       <nav aria-label="Main">
         <a href="#explore" aria-current={activeView === 'explore' ? 'page' : undefined}>Campaigns</a>
         <a href="#portfolio" aria-current={activeView === 'portfolio' ? 'page' : undefined}>Donor</a>

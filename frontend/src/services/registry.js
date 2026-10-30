@@ -1,5 +1,5 @@
 import { Contract, JsonRpcProvider, formatEther } from 'ethers';
-import { ABI, CONFIG } from '../data/aquachain.js';
+import { ABI, CONFIG } from '../data/WellChain.js';
 import { fetchIPFSJSON } from './ipfs.js';
 
 const milestoneStatuses = ['pending', 'voting', 'approved', 'rejected', 'disbursed'];

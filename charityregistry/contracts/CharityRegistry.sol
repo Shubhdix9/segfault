@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /**
  * @title CharityRegistry
- * @dev On-chain escrow, NGO authorization, milestone proof-of-work governance, and donor tracking for AquaChain.
+ * @dev On-chain escrow, NGO authorization, milestone proof-of-work governance, and donor tracking for WellChain.
  */
 contract CharityRegistry {
     enum MilestoneStatus { Pending, ProofSubmitted, Approved, Rejected, Disbursed }
@@ -61,12 +61,12 @@ contract CharityRegistry {
 
     // Modifiers
     modifier onlyAdmin() {
-        require(msg.sender == admin, "AquaChain: Caller is not admin");
+        require(msg.sender == admin, "WellChain: Caller is not admin");
         _;
     }
 
     modifier onlyVerifiedNGO() {
-        require(isVerifiedNGO[msg.sender], "AquaChain: Wallet is not a verified NGO");
+        require(isVerifiedNGO[msg.sender], "WellChain: Wallet is not a verified NGO");
         _;
     }
 

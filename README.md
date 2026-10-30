@@ -1,4 +1,4 @@
-# AquaChain System Architecture Specification & Product Blueprint
+# WellChain System Architecture Specification & Product Blueprint
 
 ## 1. Executive Summary & Feasibility Verdict
 
@@ -8,7 +8,7 @@ The current contract uses **contribution-weighted donor voting**; it does not im
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
-│                            AQUACHAIN PLATFORM ENGINE                             │
+│                            WellChain PLATFORM ENGINE                             │
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │   [ NGO ] ──1. Submits IPFS Receipt──► [ Milestone Escrow ]                      │
