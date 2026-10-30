@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: true
+permissions:
+  hardhat:
+    skills: true
+  keccak:
+    build: true
+  secp256k1:
+    build: true

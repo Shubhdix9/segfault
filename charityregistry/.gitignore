@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Hardhat build artifacts & cache
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# Environment variables & secret keys
+.env
+.env.*
+!.env.example
+
+# Temporary & backup files
+*~
+*.swp
+*.tmp
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
