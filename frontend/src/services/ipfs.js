@@ -10,24 +10,38 @@ async function readUploadResponse(response) {
 }
 
 export async function uploadFileToIPFS(file) {
-  const response = await fetch(`${apiBase}/api/ipfs/file`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': file.type || 'application/octet-stream',
-      'X-File-Name': encodeURIComponent(file.name),
-    },
-    body: file,
-  });
-  return readUploadResponse(response);
+  try {
+    const response = await fetch(`${apiBase}/api/ipfs/file`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        'X-File-Name': encodeURIComponent(file.name),
+      },
+      body: file,
+    });
+    return await readUploadResponse(response);
+  } catch (err) {
+    if (err.name === 'TypeError' && err.message?.toLowerCase().includes('fetch')) {
+      throw new Error('Upload backend is offline. Start the backend with: cd backend && npm run dev');
+    }
+    throw err;
+  }
 }
 
 export async function uploadJSONToIPFS(content, title) {
-  const response = await fetch(`${apiBase}/api/ipfs/json`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, title }),
-  });
-  return readUploadResponse(response);
+  try {
+    const response = await fetch(`${apiBase}/api/ipfs/json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content, title }),
+    });
+    return await readUploadResponse(response);
+  } catch (err) {
+    if (err.name === 'TypeError' && err.message?.toLowerCase().includes('fetch')) {
+      throw new Error('Upload backend is offline. Start the backend with: cd backend && npm run dev');
+    }
+    throw err;
+  }
 }
 
 export function getIPFSUrl(cid) {
