@@ -1,0 +1,10 @@
+{
+  "name": "aquachain-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file=.env server.js",
+    "start": "node --env-file=.env server.js",
+    "test": "node --test"
+  }
+}
