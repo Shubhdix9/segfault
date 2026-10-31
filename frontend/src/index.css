@@ -142,6 +142,158 @@ nav a[aria-current='page'] {
   align-items: start;
 }
 
+.demo-console {
+  margin: 30px 0 52px;
+  padding: 22px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 7px 7px 0 var(--ink);
+}
+
+.demo-console-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.demo-kicker {
+  color: var(--ok);
+  font: 700 12px 'Courier Prime', monospace;
+  letter-spacing: 0.12em;
+}
+
+.demo-console h2 {
+  color: var(--ink);
+  font-size: clamp(32px, 5vw, 48px);
+  margin: 8px 0;
+}
+
+.demo-console p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--soft);
+}
+
+.demo-statuses {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border: 1px solid var(--ink);
+  font: 700 11px 'Courier Prime', monospace;
+  white-space: nowrap;
+}
+
+.demo-badge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d9381a;
+}
+
+.demo-badge.ipfs-live i {
+  background: var(--ok);
+}
+
+.storage-refresh {
+  border: 0;
+  padding: 2px 0;
+  background: transparent;
+  color: var(--ink);
+  font: 700 12px 'Courier Prime', monospace;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.storage-explainer {
+  margin-top: 12px !important;
+  font-size: 13px;
+}
+
+.demo-controls {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.role-switch {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex: 1;
+  gap: 8px;
+}
+
+.role-button,
+.demo-reset {
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.role-button span,
+.role-button small {
+  display: block;
+}
+
+.role-button small {
+  margin-top: 3px;
+  color: var(--soft);
+  font: 12px 'Courier Prime', monospace;
+}
+
+.role-button.active {
+  background: var(--wash);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.demo-reset {
+  align-self: stretch;
+  text-align: center;
+  font-weight: 700;
+}
+
+.demo-journey {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.demo-journey a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.demo-journey a:hover {
+  text-decoration: underline;
+}
+
+.demo-journey b {
+  color: var(--ok);
+  font: 700 13px 'Courier Prime', monospace;
+}
+
 .hero h1 {
   font-size: clamp(56px, 10vw, 128px);
   font-weight: 900;
@@ -281,6 +433,19 @@ h2 {
   margin: 3px 0 8px;
   text-align: right;
   font-size: 12px;
+}
+
+.ipfs-links {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 5px 0 10px;
+  font-size: 12px;
+}
+
+.ipfs-links a {
+  font-weight: 700;
 }
 
 .proof-attachment a {
@@ -526,6 +691,26 @@ input[type='file'] {
 }
 
 @media (max-width: 780px) {
+  .demo-console-heading {
+    display: grid;
+  }
+
+  .demo-statuses {
+    justify-items: start;
+  }
+
+  .demo-controls {
+    display: grid;
+  }
+
+  .role-switch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .demo-journey {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .hero {
     grid-template-columns: 1fr;
     padding-top: 32px;

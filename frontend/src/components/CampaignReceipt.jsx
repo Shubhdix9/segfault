@@ -3,7 +3,14 @@ import { getIPFSUrl } from '../services/ipfs.js';
 
 function MilestoneLine({ milestone }) {
   const lineClass = milestone.st === 'disbursed' ? 'done' : milestone.st === 'voting' ? 'vote' : '';
-  const proofUrl = milestone.proofCid ? getIPFSUrl(milestone.proofCid) : '';
+  const receiptUrl = milestone.receiptCid
+    ? getIPFSUrl(milestone.receiptCid)
+    : milestone.proofIsMetadata
+      ? ''
+      : milestone.proofCid ? getIPFSUrl(milestone.proofCid) : '';
+  const proofMetadataUrl = milestone.proofIsMetadata && milestone.proofCid
+    ? getIPFSUrl(milestone.proofCid)
+    : '';
 
   return (
     <>
@@ -17,11 +24,14 @@ function MilestoneLine({ milestone }) {
           </span>
         </div>
       )}
-      {proofUrl && (
-        <div className="proof-attachment">
-          <a href={proofUrl} target="_blank" rel="noopener noreferrer">
-            View attached receipt ↗
-          </a>
+      {(receiptUrl || proofMetadataUrl) && (
+        <div className="ipfs-links">
+          {receiptUrl && (
+            <a href={receiptUrl} target="_blank" rel="noopener noreferrer">Receipt file ↗</a>
+          )}
+          {proofMetadataUrl && (
+            <a href={proofMetadataUrl} target="_blank" rel="noopener noreferrer">Proof JSON ↗</a>
+          )}
         </div>
       )}
     </>
@@ -40,6 +50,13 @@ export default function CampaignReceipt({ campaign, children, className = '' }) 
         {campaign.paused && <> <span className="stamp">PAUSED</span></>}
       </div>
       {campaign.story && <p className="campaign-story">{campaign.story}</p>}
+      {campaign.metaCid && (
+        <div className="ipfs-links">
+          <a href={getIPFSUrl(campaign.metaCid)} target="_blank" rel="noopener noreferrer">
+            Campaign JSON on IPFS ↗
+          </a>
+        </div>
+      )}
       {campaign.ms.map((milestone, index) => (
         <MilestoneLine key={`${milestone.n}-${index}`} milestone={milestone} />
       ))}

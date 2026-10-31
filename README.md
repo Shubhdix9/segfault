@@ -307,18 +307,24 @@ contract CharityRegistry {
 
 ---
 
-## Local Development and Testing
+## Local Development and Presentation Demo
 
-The app and upload API can be exercised before Pinata credentials or a deployed contract are available:
+The frontend starts in **presentation mode** with ready-to-use admin, verified-NGO, applicant-NGO, and donor roles. Switch roles from the presentation panel to walk through authorization, funding, receipt submission, voting, and payout finalization. POL values and contract actions are simulated locally; the demo does not connect a wallet, submit blockchain transactions, or spend POL.
 
-1. In `backend/.env`, set `PINATA_MODE=mock`. Mock uploads are held in memory and disappear when the API restarts; they are not pinned to IPFS.
-2. Start the API with `cd backend && npm run dev`.
-3. Start the frontend in another terminal with `cd frontend && npm run dev`.
-4. Run `cd frontend && npm test && npm run build`, `cd backend && npm test`, and `cd charityregistry && node_modules/.bin/hardhat test`.
+Uploads are separate from simulated funds. New campaigns upload a structured JSON document to the backend and read it back by CID; NGO receipt submissions upload the receipt file plus a proof JSON document that references the receipt CID. Campaign and proof CID links are shown in the UI. To pin those documents to **real IPFS**, configure Pinata:
 
-These tests cover upload requests, the local mock-storage round trip, API validation, and contract behavior. They do not prove that the provided Pinata account, deployed contract, wallet, or public RPC endpoint works end to end.
+1. Copy `backend/.env.example` to `backend/.env`.
+2. Set `PINATA_MODE=pinata` and add your Pinata JWT to `PINATA_JWT` in `backend/.env`. Keep this secret on the backend; never put it in a `VITE_` variable.
+3. Start the upload API with `cd backend && npm run dev`.
+4. In another terminal, start the UI with `cd frontend && npm install && npm run dev`.
 
-For real Pinata uploads, change `PINATA_MODE=pinata` and set `PINATA_JWT` in `backend/.env`. Keep the JWT server-side; never add it to a `VITE_` variable. For live contract use, set `VITE_CONTRACT_ADDRESS`, `VITE_CHAIN_ID=80002`, and `VITE_RPC_URL` in `frontend/.env`.
+The presentation panel reports whether the backend is offline, using temporary mock storage, or pinning through Pinata. **Mock mode is not IPFS:** it stores uploads in memory and they disappear when the API restarts. To preview interactions without Pinata, set `PINATA_MODE=mock`; campaign metadata and proofs still travel through the upload API, but are clearly identified as mock storage.
+
+Run the frontend and contract checks with `cd frontend && npm test && npm run build` and `cd charityregistry && pnpm test`. Tests use local fixtures or the Hardhat network and do not require POL.
+
+Live contract use remains deliberately opt-in. Set `VITE_CONTRACT_ADDRESS`, `VITE_ENABLE_LIVE_TRANSACTIONS=true`, `VITE_CHAIN_ID=80002`, and `VITE_RPC_URL` in `frontend/.env` only when you intend to use the deployed registry. Live transactions require POL for gas; the presentation-mode role switch and simulated POL are not wallet authentication and must not be used as production authorization.
+
+The admin wallet is the only role that can authorize or revoke NGO wallets. Only authorized NGO wallets can create campaigns, and only a campaign's NGO can submit receipts or claim its seed advance. Donors can vote only on campaigns they contributed to; milestone finalization remains permissionless once its on-chain conditions are met. These checks are enforced by the contract and reflected in the live frontend.
 
 The escrow accounting and milestone-order checks in `CharityRegistry.sol` require a fresh deployment. An already deployed contract cannot acquire these changes by updating the frontend; use the address of the redeployed contract.
 

@@ -1,5 +1,6 @@
 export const CONFIG = {
   address: import.meta.env.VITE_CONTRACT_ADDRESS || '',
+  enableLiveTransactions: import.meta.env.VITE_ENABLE_LIVE_TRANSACTIONS === 'true',
   admin: import.meta.env.VITE_ADMIN_ADDRESS || '',
   chainId: Number(import.meta.env.VITE_CHAIN_ID || 80002),
   rpcUrl: import.meta.env.VITE_RPC_URL || 'https://rpc-amoy.polygon.technology',
@@ -15,6 +16,7 @@ export const ABI = [
   'function hasVoted(uint256,uint256,address) view returns (bool)',
   'function isVerifiedNGO(address) view returns (bool)',
   'function authorizeNGO(address)',
+  'function revokeNGO(address)',
   'function submitProof(uint256,uint256,string)',
   'function claimSeedAdvance(uint256)',
   'function donate(uint256) payable',
@@ -23,31 +25,57 @@ export const ABI = [
   'function createCampaign(string,uint256,uint256,string[],uint256[]) returns (uint256)',
 ];
 
+export const demoActors = {
+  admin: {
+    label: 'Platform admin',
+    address: '0x1000000000000000000000000000000000000001',
+  },
+  ngo: {
+    label: 'Verified NGO',
+    address: '0x2000000000000000000000000000000000000002',
+  },
+  donor: {
+    label: 'Donor',
+    address: '0x3000000000000000000000000000000000000003',
+  },
+  applicant: {
+    label: 'NGO applicant',
+    address: '0x4000000000000000000000000000000000000004',
+  },
+};
+
 export const initialNgos = [
-  { name: 'Jal Seva Trust', w: '0x8F3a…91bc', st: 'approved' },
-  { name: 'Tankaa Foundation', w: '0x71C2…09aE', st: 'pending' },
-  { name: 'Marusthal Water Forum', w: '0x44d0…c3B1', st: 'pending' },
+  { name: 'Jal Seva Trust', w: demoActors.ngo.address, st: 'approved' },
+  { name: 'Tankaa Foundation', w: demoActors.applicant.address, st: 'pending' },
+  { name: 'Marusthal Water Forum', w: '0x5000000000000000000000000000000000000005', st: 'pending' },
 ];
 
 export const initialCampaigns = [
   {
     id: 1,
     title: 'Clean water, District 4',
+    story: 'A donor-backed water project. Every payout is tied to a receipt and donor decision.',
     ngo: 'Jal Seva Trust',
-    own: true,
-    raised: 500,
+    ngoAddress: demoActors.ngo.address,
+    contributions: { [demoActors.donor.address]: 200 },
+    metaCid: '',
+    raised: 300,
     target: 800,
     mine: 200,
     ms: [
       { n: 'Seed advance', seed: true, amt: 40, st: 'disbursed' },
-      { n: 'Ceramic filters', amt: 100, st: 'voting', yes: 150, no: 50 },
+      { n: 'Ceramic filters', amt: 100, st: 'pending', yes: 0, no: 0 },
       { n: 'Logistics', amt: 60, st: 'locked' },
     ],
   },
   {
     id: 2,
     title: 'Flood relief food packs',
+    story: 'Emergency food packs with a completed, auditable funding trail.',
     ngo: 'Bandh Relief Collective',
+    ngoAddress: '0x6000000000000000000000000000000000000006',
+    contributions: { [demoActors.donor.address]: 250 },
+    metaCid: '',
     raised: 600,
     target: 600,
     mine: 250,
@@ -60,7 +88,9 @@ export const initialCampaigns = [
     id: 3,
     title: 'Borewell repair, Barmer',
     ngo: 'Jal Seva Trust',
-    own: true,
+    ngoAddress: demoActors.ngo.address,
+    contributions: {},
+    metaCid: '',
     raised: 180,
     target: 500,
     mine: 0,
@@ -73,7 +103,10 @@ export const initialCampaigns = [
   {
     id: 4,
     title: 'Rain tanks, three schools',
-    ngo: 'Tankaa Foundation',
+    ngo: 'Bandh Relief Collective',
+    ngoAddress: '0x6000000000000000000000000000000000000006',
+    contributions: {},
+    metaCid: '',
     raised: 90,
     target: 300,
     mine: 0,

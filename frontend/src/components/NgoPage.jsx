@@ -25,7 +25,16 @@ function Gate({ onConnect }) {
   );
 }
 
-export default function NgoPage({ account, demo, campaigns, onConnect, onProof, onClaim, onPublish }) {
+export default function NgoPage({
+  account,
+  demo,
+  campaigns,
+  onConnect,
+  onProof,
+  onClaim,
+  onPublish,
+  isVerifiedNgo,
+}) {
   if (!account) return <Gate onConnect={onConnect} />;
 
   const ownedCampaigns = campaigns.filter((campaign) => campaign.own);
@@ -40,10 +49,13 @@ export default function NgoPage({ account, demo, campaigns, onConnect, onProof, 
   return (
     <>
       <h2>NGO dashboard</h2>
-      <p className="sub">Wallet {short(account)}{demo ? ' (demo data)' : ''}. Each payout stays locked until your donors approve its receipt.</p>
+      <p className="sub">
+        Wallet {short(account)}{demo ? ' (presentation role)' : ''}. Each payout stays locked until donors approve its receipt.
+        {demo && ' POL and payouts are simulated; uploaded campaign and proof documents use IPFS storage.'}
+      </p>
       <Summary items={[
         [ownedCampaigns.length, 'campaigns'],
-        [raised, 'POL raised'],
+        [raised, demo ? 'simulated POL raised' : 'POL raised'],
         [receiptsDue, 'receipts to submit'],
         [inVote, 'in donor vote'],
       ]} />
@@ -88,7 +100,11 @@ export default function NgoPage({ account, demo, campaigns, onConnect, onProof, 
               {pendingMilestone && !pendingMilestone.seed && (
                 <div className="vbox">
                   <strong>Next payout: {pendingMilestone.n}</strong>
-                  <div className="stub proof-note">Upload the store receipt. Donors then vote for 24 hours.</div>
+                  <div className="stub proof-note">
+                    {demo
+                      ? 'Upload the store receipt and proof JSON to IPFS. Donor votes and payouts are simulated.'
+                      : 'Upload the store receipt and proof JSON to IPFS. Donors then vote for 24 hours.'}
+                  </div>
                   <input
                     id={`pf${campaign.id}-${pendingIndex}`}
                     type="file"
@@ -118,7 +134,14 @@ export default function NgoPage({ account, demo, campaigns, onConnect, onProof, 
           );
         }) : <p className="empty">No campaigns yet. Start one below.</p>}
       </div>
-      <div className="campaign-create"><CampaignForm onPublish={onPublish} /></div>
+      {!isVerifiedNgo ? (
+        <div className="empty">
+          <h3>Campaign creation is restricted</h3>
+          <p className="sub">The connected wallet must be authorized by the platform admin before it can create campaigns.</p>
+        </div>
+      ) : (
+        <div className="campaign-create"><CampaignForm onPublish={onPublish} /></div>
+      )}
     </>
   );
 }

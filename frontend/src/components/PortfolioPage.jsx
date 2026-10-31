@@ -56,7 +56,7 @@ export default function PortfolioPage({
       <h2>Donor dashboard</h2>
       <p className="sub">Wallet {short(account)}{demo ? ' (demo data)' : ''}</p>
       <Summary items={[
-        [total, 'POL given'],
+        [total, demo ? 'simulated POL given' : 'POL given'],
         [mine.length, 'campaigns backed'],
         [Object.keys(votes).length, 'votes cast'],
         [pending, 'waiting on you'],
@@ -67,7 +67,11 @@ export default function PortfolioPage({
           const milestone = arrayIndex >= 0 ? campaign.ms[arrayIndex] : null;
           const milestoneIndex = milestone ? milestone.index ?? arrayIndex : -1;
           const voted = milestone ? votes[`${campaign.id}-${milestoneIndex}`] : undefined;
-          const proofUrl = milestone?.proofCid ? getIPFSUrl(milestone.proofCid) : '';
+          const receiptCid = milestone?.receiptCid || milestone?.proofCid;
+          const proofUrl = receiptCid ? getIPFSUrl(receiptCid) : '';
+          const proofMetadataUrl = milestone?.proofIsMetadata && milestone?.proofCid
+            ? getIPFSUrl(milestone.proofCid)
+            : '';
           const totalVotes = milestone ? milestone.yes + milestone.no : 0;
           const yesPercent = totalVotes ? Math.round((milestone.yes / totalVotes) * 100) : 0;
           const votingExpired = !demo && milestone?.deadline > 0
@@ -81,9 +85,16 @@ export default function PortfolioPage({
                   <strong>Receipt for “{milestone.n}”</strong><br />
                   {proofUrl ? (
                     <a href={proofUrl} target="_blank" rel="noopener noreferrer">
-                      Open the store receipt on IPFS
+                      Open receipt on IPFS ↗
                     </a>
+                  ) : milestone.proofName ? (
+                    <span className="stub">Demo attachment: {milestone.proofName} (not uploaded)</span>
                   ) : <span className="stub">No receipt attachment is available.</span>}
+                  {proofMetadataUrl && (
+                    <a href={proofMetadataUrl} target="_blank" rel="noopener noreferrer">
+                      Open proof JSON ↗
+                    </a>
+                  )}
                   <div className="tally" aria-hidden="true">
                     <i style={{ width: `${yesPercent}%`, background: '#7fd6a6' }} />
                     <i style={{ width: `${100 - yesPercent}%`, background: '#ff9d86' }} />
@@ -95,6 +106,11 @@ export default function PortfolioPage({
                   {votingExpired && (
                     <button className="btn go finalize-button" onClick={() => onFinalize(campaign.id, milestoneIndex)}>
                       Finalize milestone
+                    </button>
+                  )}
+                  {demo && milestone.st === 'voting' && (
+                    <button className="btn go finalize-button" onClick={() => onFinalize(campaign.id, milestoneIndex)}>
+                      Finalize simulated vote
                     </button>
                   )}
                   {voted === undefined ? (

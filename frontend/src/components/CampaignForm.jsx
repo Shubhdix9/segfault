@@ -13,7 +13,7 @@ export default function CampaignForm({ onPublish }) {
           <input name="title" required placeholder="Handpumps for Ward 9" />
         </label>
         <label>
-          Story (stored on IPFS when you publish)
+          Story (stored in the campaign JSON on IPFS)
           <textarea name="story" rows="4" placeholder="Who needs water, and what will this fix?" />
         </label>
         <label>

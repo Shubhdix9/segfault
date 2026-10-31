@@ -44,6 +44,16 @@ export async function uploadJSONToIPFS(content, title) {
   }
 }
 
+export async function getIPFSHealth() {
+  const response = await fetch(`${apiBase}/api/health`);
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || `Upload service check failed (${response.status}).`);
+  return {
+    storageMode: result.storageMode,
+    pinataConfigured: Boolean(result.pinataConfigured),
+  };
+}
+
 export function getIPFSUrl(cid) {
   if (!cid) return '';
   if (cid.startsWith('mock-')) {
@@ -60,13 +70,26 @@ export function getIPFSUrl(cid) {
 export async function fetchIPFSJSON(cid) {
   const url = getIPFSUrl(cid);
   if (!url) throw new Error('Invalid IPFS content identifier.');
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Could not load campaign metadata (${response.status}).`);
-  const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('json')) throw new Error('Campaign metadata on IPFS is not JSON.');
-  const metadata = await response.json();
-  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
-    throw new Error('Campaign metadata on IPFS must be a JSON object.');
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const error = new Error(`Could not load campaign metadata (${response.status}).`);
+        error.retryable = response.status === 404 || response.status === 429 || response.status >= 500;
+        throw error;
+      }
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('json')) throw new Error('Campaign metadata on IPFS is not JSON.');
+      const metadata = await response.json();
+      if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+        throw new Error('Campaign metadata on IPFS must be a JSON object.');
+      }
+      return metadata;
+    } catch (error) {
+      const retryable = error.retryable || error instanceof TypeError;
+      if (!retryable || attempt === 3) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+    }
   }
-  return metadata;
+  throw new Error('Could not load JSON from IPFS.');
 }

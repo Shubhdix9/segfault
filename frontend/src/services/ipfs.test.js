@@ -65,6 +65,28 @@ test('loads mock IPFS JSON and rejects arbitrary HTTP links as CIDs', async (con
   assert.equal(getIPFSUrl('https://untrusted.example/receipt.pdf'), '');
 });
 
+test('reads campaign JSON back from its uploaded IPFS CID', async (context) => {
+  const originalFetch = globalThis.fetch;
+  const cid = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3vj6u5x5s2k25zg3foe7f7f2a';
+  const document = { kind: 'wellchain-campaign', title: 'School water tanks' };
+  const requests = [];
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url, options });
+    if (options?.method === 'POST') return Response.json({ cid });
+    return Response.json(document);
+  };
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const uploaded = await uploadJSONToIPFS(document, document.title);
+  const readBack = await fetchIPFSJSON(uploaded.cid);
+
+  assert.deepEqual(readBack, document);
+  assert.equal(requests[0].url, '/api/ipfs/json');
+  assert.equal(requests[1].url, getIPFSUrl(cid));
+});
+
 test('surfaces upload and metadata response errors', async (context) => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(

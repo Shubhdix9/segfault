@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function DonateDialog({ campaign, onDonate, onClose }) {
+export default function DonateDialog({ campaign, onDonate, onClose, simulatedPol }) {
   const dialogRef = useRef(null);
   const [amount, setAmount] = useState('25');
 
@@ -28,7 +28,7 @@ export default function DonateDialog({ campaign, onDonate, onClose }) {
       <form onSubmit={submit}>
         <h3 className="dialog-title">{campaign?.title}</h3>
         <label>
-          Amount in POL
+          Amount in {simulatedPol ? 'simulated POL' : 'POL'}
           <input
             type="number"
             min="1"

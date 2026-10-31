@@ -18,9 +18,10 @@ export function createReadContract() {
 }
 
 export async function readRegistry(contract, account) {
-  const [counter, admin] = await Promise.all([
+  const [counter, admin, isVerifiedNgo] = await Promise.all([
     contract.campaignCounter(),
     contract.admin(),
+    account ? contract.isVerifiedNGO(account) : false,
   ]);
   const campaignIds = Array.from({ length: Number(counter) }, (_, index) => index + 1);
   const campaigns = [];
@@ -48,8 +49,19 @@ export async function readRegistry(contract, account) {
         account ? contract.hasVoted(id, index, account) : false,
       ])),
     );
-    const milestones = milestoneResults.map(([milestone, hasVoted], index) => {
+    const milestones = await Promise.all(milestoneResults.map(async ([milestone, hasVoted], index) => {
       const status = milestoneStatuses[Number(milestone.status)] || 'pending';
+      const proofCid = milestone.ipfsProofCID;
+      let proofMetadata = null;
+      let proofMetadataError = '';
+      if (proofCid) {
+        try {
+          const document = await fetchIPFSJSON(proofCid);
+          if (document.kind === 'wellchain-milestone-proof') proofMetadata = document;
+        } catch (error) {
+          proofMetadataError = error.message;
+        }
+      }
       if (account && hasVoted) voteState[`${id}-${index}`] = 'cast';
       return {
         index,
@@ -58,11 +70,17 @@ export async function readRegistry(contract, account) {
         st: status,
         yes: asPol(milestone.yesVotes),
         no: asPol(milestone.noVotes),
-        proofCid: milestone.ipfsProofCID,
+        proofCid,
+        receiptCid: typeof proofMetadata?.receiptCid === 'string'
+          ? proofMetadata.receiptCid
+          : proofCid,
+        proofIsMetadata: Boolean(proofMetadata),
+        proofName: typeof proofMetadata?.fileName === 'string' ? proofMetadata.fileName : '',
+        proofMetadataError,
         deadline: Number(milestone.votingDeadline),
         hasVoted,
       };
-    });
+    }));
     for (let index = 1; index < milestones.length; index += 1) {
       if (milestones[index].st === 'pending' && milestones[index - 1].st !== 'disbursed') {
         milestones[index].st = 'locked';
@@ -115,5 +133,6 @@ export async function readRegistry(contract, account) {
     votes: voteState,
     ngos: Array.from(knownNgos.values()),
     admin,
+    isVerifiedNgo,
   };
 }

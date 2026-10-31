@@ -36,6 +36,20 @@ describe("CharityRegistry Unit & Integration Tests", function () {
 
       expect(await registry.isVerifiedNGO(ngo.address)).to.be.true;
     });
+
+    it("Should restrict NGO authorization changes to the admin", async function () {
+      await expect(registry.connect(stranger).authorizeNGO(ngo.address))
+        .to.be.revertedWith("WellChain: Caller is not admin");
+
+      await registry.connect(admin).authorizeNGO(ngo.address);
+      await expect(registry.connect(stranger).revokeNGO(ngo.address))
+        .to.be.revertedWith("WellChain: Caller is not admin");
+
+      await expect(registry.connect(admin).revokeNGO(ngo.address))
+        .to.emit(registry, "NGORevoked")
+        .withArgs(ngo.address);
+      expect(await registry.isVerifiedNGO(ngo.address)).to.be.false;
+    });
   });
 
   describe("2. Campaign Creation & Donations", function () {

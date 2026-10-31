@@ -35,6 +35,7 @@ export default function AdminPage({
   onNgoStatus,
   onAuthorizeNgo,
   onPause,
+  onRevokeNgo,
 }) {
   const [ngoAddress, setNgoAddress] = useState('');
   if (!account) {
@@ -52,11 +53,14 @@ export default function AdminPage({
   return (
     <>
       <h2>Admin dashboard</h2>
-      <p className="sub">Platform oversight. Admins verify NGOs and monitor campaigns. They can’t move donor funds or vote on receipts.</p>
+      <p className="sub">
+        Platform oversight. Admins verify NGOs and monitor campaigns. They can’t move donor funds or vote on receipts.
+        {demo && ' Changes are simulated for this presentation.'}
+      </p>
       <Summary items={[
         [ngos.filter((ngo) => ngo.st === 'approved').length, 'verified NGOs'],
         [campaigns.length, 'campaigns'],
-        [raised, 'POL raised'],
+        [raised, demo ? 'simulated POL raised' : 'POL raised'],
         [flags.length, 'flagged by donors'],
       ]} />
       <div className="rack">
@@ -95,6 +99,9 @@ export default function AdminPage({
                   <span className={`stamp ${ngo.st === 'approved' ? 'ok' : ''}`}>
                     {ngo.st === 'approved' ? 'VERIFIED' : ngo.st === 'revoked' ? 'REVOKED' : 'REJECTED'}
                   </span>
+                  {ngo.st === 'approved' && (
+                    <button className="btn no" onClick={() => onRevokeNgo(ngo.w)}>Revoke</button>
+                  )}
                 </div>
               )}
             </div>
