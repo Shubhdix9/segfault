@@ -434,7 +434,196 @@
       font-size: 13px
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .wallet-chip {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--wash);
+      color: #fff;
+      border-radius: 2px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+    }
+
+    .logout-btn {
+      font-size: 13px;
+      padding: 8px 14px;
+    }
+
+    .demo-console {
+      margin: 30px 0 52px;
+      padding: 22px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+
+    .demo-console-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .demo-kicker {
+      color: var(--ok);
+      font: 700 12px 'Courier Prime', monospace;
+      letter-spacing: 0.12em;
+    }
+
+    .demo-console h2 {
+      color: var(--ink);
+      font-size: clamp(32px, 5vw, 48px);
+      margin: 8px 0;
+    }
+
+    .demo-console p {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--soft);
+    }
+
+    .demo-statuses {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+    }
+
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border: 1px solid var(--ink);
+      font: 700 11px 'Courier Prime', monospace;
+      white-space: nowrap;
+    }
+
+    .demo-badge i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d9381a;
+      display: inline-block;
+    }
+
+    .demo-badge.ipfs-live i {
+      background: var(--ok);
+    }
+
+    .storage-refresh {
+      border: 0;
+      padding: 2px 0;
+      background: transparent;
+      color: var(--ink);
+      font: 700 12px 'Courier Prime', monospace;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .storage-explainer {
+      margin-top: 12px !important;
+      font-size: 13px;
+    }
+
+    .demo-controls {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .role-switch {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      flex: 1;
+      gap: 8px;
+    }
+
+    .role-button,
+    .demo-reset {
+      min-height: 56px;
+      padding: 8px 12px;
+      border: 2px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .role-button span,
+    .role-button small {
+      display: block;
+    }
+
+    .role-button small {
+      margin-top: 3px;
+      color: var(--soft);
+      font: 12px 'Courier Prime', monospace;
+    }
+
+    .role-button.active {
+      background: var(--wash);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .demo-reset {
+      align-self: stretch;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .demo-reset.demo-exit {
+      background: #ffc9bd;
+      color: var(--ink);
+    }
+
+    .demo-reset.demo-exit:hover {
+      background: #ffb4a2;
+    }
+
+    .demo-journey {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      list-style: none;
+      margin: 20px 0 0;
+      padding: 14px 0 0;
+      border-top: 1px dashed var(--rule);
+    }
+
+    .demo-journey a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .demo-journey a:hover {
+      text-decoration: underline;
+    }
+
+    .demo-journey b {
+      color: var(--ok);
+      font: 700 13px 'Courier Prime', monospace;
+    }
+
     @media (max-width:780px) {
+      .demo-console-heading { display: grid; }
+      .demo-statuses { justify-items: start; }
+      .demo-controls { display: grid; }
+      .role-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .demo-journey { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero {
         grid-template-columns: 1fr;
         padding-top: 32px
@@ -455,18 +644,19 @@
         <a href="#explore" data-v="explore">Campaigns</a>
         <a href="#portfolio" data-v="portfolio">Donor</a>
       </nav>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button class="btn go" id="connect" onclick="connectMetaMask()">Connect MetaMask</button>
-        <button class="btn" id="demo-btn" style="background:#b8f0cf;font-weight:600" onclick="useDemoMode()">🌟 Show
-          Demo</button>
-        <button class="btn" id="logout" style="display:none;background:#ffc9bd" onclick="disconnect()">Log out</button>
+      <div class="header-actions" id="header-actions">
+        <button class="btn go" id="connect" onclick="connectMetaMask()">Connect wallet</button>
+        <button class="btn" id="demo-btn" style="background:#b8f0cf;font-weight:600" onclick="useDemoMode()">🌟 Show Demo</button>
       </div>
     </header>
+    <div id="demo-console-slot"></div>
     <main id="app"></main>
     <footer>
       <div>Polygon Amoy testnet. Receipts are stored on IPFS, votes and payouts on CharityRegistry.sol.</div>
-      <button class="btn" style="padding:2px 8px;font-size:12px;margin-left:auto;box-shadow:none"
-        onclick="fixPolygonAmoyNetwork()">Update MetaMask Amoy RPC</button>
+      <div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap">
+        <a class="btn" href="https://faucet.polygon.technology" target="_blank" rel="noopener" style="padding:2px 8px;font-size:12px;text-decoration:none;box-shadow:none;background:#b8f0cf;color:#05381e">🚰 Free Amoy POL Faucet</a>
+        <button class="btn" style="padding:2px 8px;font-size:12px;box-shadow:none" onclick="fixPolygonAmoyNetwork()">Update MetaMask Amoy RPC</button>
+      </div>
     </footer>
   </div>
 
@@ -930,7 +1120,7 @@
     <div class="ln"><span>Otherwise</span><i></i><span>HELD</span></div>
     <div class="stub">Amounts in each campaign are in POL.</div><div style="text-align:right"><span class="stamp ok">NO AUDITOR</span></div></article></section>
     <h2>Open campaigns</h2><p class="sub">Each line is a payout that stays locked until donors approve its receipt.</p>
-    <div class="rack">${C.map(c => receipt(c, `<button class="btn go" onclick="donate(${c.id})">Donate to this campaign</button>`)).join("")}</div>`;
+    <div class="rack">${C.map(c => receipt(c, `<button class="btn go" onclick="donate(${c.id})">${S.demo ? 'Try a simulated donation' : 'Donate to this campaign'}</button>`)).join("")}</div>`;
     }
 
     function portfolio() {
@@ -1258,6 +1448,103 @@
   </div>`;
     }
 
+    const demoActors = {
+      admin: { label: "Platform admin", address: "0x1000000000000000000000000000000000000001" },
+      ngo: { label: "Verified NGO", address: "0x2000000000000000000000000000000000000002" },
+      donor: { label: "Donor", address: "0x3000000000000000000000000000000000000003" },
+      applicant: { label: "NGO applicant", address: "0x4000000000000000000000000000000000000004" }
+    };
+
+    function selectDemoRole(addr) {
+      S.acct = addr;
+      S.demo = true;
+      S.signer = null;
+      localStorage.setItem("aquachain_user_connected", "true");
+      localStorage.setItem("aquachain_user_mode", "demo");
+      const actor = Object.values(demoActors).find(a => a.address.toLowerCase() === addr.toLowerCase());
+      toast(`Switched persona to: ${actor ? actor.label : short(addr)}`);
+      route();
+    }
+
+    function resetDemo() {
+      C[0].raised = 500; C[0].mine = 200; C[0].ms[0].st = "disbursed"; C[0].ms[1].st = "voting";
+      C[1].raised = 600; C[1].mine = 250;
+      C[2].raised = 180; C[2].mine = 0; C[2].ms[0].st = "pending";
+      S.voted = {};
+      toast("Demo state reset to initial campaign records.");
+      route();
+    }
+
+    function updateHeader() {
+      const container = $("#header-actions");
+      if (!container) return;
+      if (S.acct) {
+        container.innerHTML = `
+          <span class="wallet-chip" title="${S.acct}">${short(S.acct)}${S.demo ? ' (demo)' : ''}</span>
+          <button class="btn no logout-btn" onclick="disconnect()" type="button">${S.demo ? 'Exit demo' : 'Disconnect'}</button>
+        `;
+      } else {
+        container.innerHTML = `
+          <button class="btn go" id="connect" onclick="connectMetaMask()" type="button">Connect wallet</button>
+          <button class="btn logout-btn" id="demo-btn" style="background:#b8f0cf;font-weight:600" onclick="useDemoMode()" type="button">Demo mode</button>
+        `;
+      }
+    }
+
+    function updateDemoConsole() {
+      const slot = $("#demo-console-slot");
+      if (!slot) return;
+      if (!S.demo || !S.acct) {
+        slot.innerHTML = "";
+        return;
+      }
+      const isIpfsLive = !!IPFS.jwt;
+      const rolesHtml = Object.entries(demoActors).map(([role, actor]) => {
+        const isActive = S.acct && S.acct.toLowerCase() === actor.address.toLowerCase();
+        return `
+          <button class="role-button ${isActive ? 'active' : ''}" type="button" onclick="selectDemoRole('${actor.address}')">
+            <span>${actor.label}</span>
+            <small>${short(actor.address)}</small>
+          </button>
+        `;
+      }).join("");
+
+      slot.innerHTML = `
+        <section class="demo-console" aria-label="Presentation controls">
+          <div class="demo-console-heading">
+            <div>
+              <span class="demo-kicker">PRESENTATION MODE</span>
+              <h2>Run the whole story. Spend nothing.</h2>
+              <p>Switch roles as you present. POL amounts are simulated; JSON and receipt uploads use the configured IPFS service.</p>
+            </div>
+            <div class="demo-statuses">
+              <span class="demo-badge fake-pol">SIMULATED POL · NO GAS</span>
+              <span class="demo-badge ${isIpfsLive ? 'ipfs-live' : 'ipfs-mock'}">
+                <i aria-hidden="true"></i>${isIpfsLive ? 'Pinata IPFS live' : 'Simulated IPFS'}
+              </span>
+              <a class="storage-refresh" href="#admin">Check IPFS setup</a>
+            </div>
+          </div>
+          <p class="storage-explainer">
+            ${isIpfsLive ? 'Campaign JSON and receipt files are pinned to Pinata, then read back by CID.' : 'Operating with simulated IPFS storage. Configure Pinata JWT in Admin for live pinning.'}
+          </p>
+          <div class="demo-controls">
+            <div class="role-switch" role="group" aria-label="Choose a demo role">
+              ${rolesHtml}
+            </div>
+            <button class="demo-reset" type="button" onclick="resetDemo()">Reset demo</button>
+            <button class="demo-reset demo-exit" type="button" onclick="disconnect()">Exit demo</button>
+          </div>
+          <ol class="demo-journey">
+            <li><a href="#explore"><b>01</b><span>Fund a project</span></a></li>
+            <li><a href="#ngo"><b>02</b><span>Advance unlocks</span></a></li>
+            <li><a href="#ngo"><b>03</b><span>Upload evidence</span></a></li>
+            <li><a href="#portfolio"><b>04</b><span>Donors vote</span></a></li>
+          </ol>
+        </section>
+      `;
+    }
+
     const views = { explore, portfolio, ngo, admin, "new-campaign": newCampaign };
 
     function updateNav(v) {
@@ -1283,15 +1570,13 @@
     function route() {
       const v = getRoute();
       updateNav(v);
-      if ($("#connect")) $("#connect").textContent = S.acct ? (short(S.acct) + (S.demo ? " (demo)" : "")) : "Connect MetaMask";
-      if ($("#demo-btn")) $("#demo-btn").textContent = (S.acct && S.demo) ? "✨ Demo Active" : "🌟 Show Demo";
-      if ($("#logout")) $("#logout").style.display = S.acct ? "inline-block" : "none";
+      updateHeader();
+      updateDemoConsole();
       $("#app").innerHTML = views[v]();
       const f = $("#cform");
       if (f) f.onsubmit = publish;
     }
 
-    if ($("#connect")) $("#connect").onclick = connectMetaMask;
     addEventListener("hashchange", () => { scrollTo(0, 0); route(); });
 
     if (window.ethereum && window.ethereum.on) {
@@ -1299,10 +1584,7 @@
         if (accounts && accounts.length) {
           connect();
         } else {
-          S.acct = null;
-          S.signer = null;
-          $("#connect").textContent = "Connect wallet";
-          route();
+          disconnect();
         }
       });
       window.ethereum.on('chainChanged', () => route());

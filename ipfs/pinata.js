@@ -134,3 +134,4 @@
     module.exports = PinataIPFS;
   }
 })(typeof window !== "undefined" ? window : globalThis);
+
