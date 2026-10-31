@@ -45,9 +45,14 @@ export const demoActors = {
 };
 
 export const initialNgos = [
-  { name: 'Jal Seva Trust', w: demoActors.ngo.address, st: 'approved' },
-  { name: 'Tankaa Foundation', w: demoActors.applicant.address, st: 'pending' },
-  { name: 'Marusthal Water Forum', w: '0x5000000000000000000000000000000000000005', st: 'pending' },
+  {
+    name: 'Jal Seva Trust',
+    w: demoActors.ngo.address,
+    st: 'approved',
+    goals: 'Providing community water filtration units and solar pumping across rural schools.',
+    docName: 'jal_seva_charity_cert.pdf',
+    docCid: '',
+  },
 ];
 
 export const initialCampaigns = [

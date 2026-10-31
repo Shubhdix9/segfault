@@ -24,7 +24,7 @@ import {
 import { createReadContract, readRegistry } from './services/registry.js';
 
 const hasLiveRegistry = Boolean(CONFIG.address && CONFIG.enableLiveTransactions);
-const demoStoreKey = 'wellchain-presentation-demo-v2';
+const demoStoreKey = 'wellchain-presentation-demo-v3';
 const availableViews = ['explore', 'portfolio', 'ngo', 'admin'];
 
 function getErrorMessage(error) {
@@ -51,7 +51,7 @@ function wait(milliseconds) {
 function readDemoState() {
   try {
     const saved = JSON.parse(window.localStorage.getItem(demoStoreKey) || 'null');
-    if (saved?.version === 2 && Array.isArray(saved.campaigns) && Array.isArray(saved.ngos)) {
+    if (saved?.version === 3 && Array.isArray(saved.campaigns) && Array.isArray(saved.ngos)) {
       return saved;
     }
   } catch {
@@ -162,7 +162,7 @@ export default function App() {
     if (hasLiveRegistry) return;
     try {
       window.localStorage.setItem(demoStoreKey, JSON.stringify({
-        version: 2,
+        version: 3,
         account,
         campaigns,
         ngos,
@@ -777,15 +777,83 @@ export default function App() {
     }
   };
 
-  const updateNgoStatus = (index, status) => {
+  const applyNgo = async ({ name, goals, file }) => {
+    const connectedAccount = await ensureConnected();
+    if (!connectedAccount) return;
+
+    if (!name?.trim()) {
+      toast('Please enter your NGO organization name.');
+      return;
+    }
+    if (!goals?.trim()) {
+      toast('Please specify your NGO mission and goals.');
+      return;
+    }
+    if (!file) {
+      toast('Please upload an NGO verification document.');
+      return;
+    }
+
+    try {
+      toast('Uploading verification document to IPFS...');
+      let docCid = '';
+      try {
+        const uploadResult = await uploadFileToIPFS(file);
+        docCid = uploadResult.cid;
+      } catch (uploadError) {
+        console.warn('IPFS upload fallback:', uploadError);
+        docCid = `mock-doc-${Date.now()}`;
+      }
+
+      const newApplication = {
+        name: name.trim(),
+        goals: goals.trim(),
+        docCid,
+        docName: file.name,
+        w: connectedAccount,
+        st: 'pending',
+        appliedAt: new Date().toISOString(),
+      };
+
+      setNgos((current) => {
+        const withoutCurrent = current.filter(
+          (ngo) => ngo.w.toLowerCase() !== connectedAccount.toLowerCase()
+        );
+        return [newApplication, ...withoutCurrent];
+      });
+
+      toast('NGO application submitted! The platform admin will review it.');
+    } catch (error) {
+      toast(`Application failed: ${getErrorMessage(error)}`);
+    }
+  };
+
+  const updateNgoStatus = async (index, status) => {
     if (!isAdmin) {
       toast('Only the platform admin can change NGO status.');
       return;
     }
+    const targetNgo = ngos[index];
+    if (!targetNgo) return;
+
+    if (hasLiveRegistry && status === 'approved') {
+      try {
+        await send('authorizeNGO', [targetNgo.w]);
+        await refreshRegistry(account, signerRef.current);
+      } catch (error) {
+        toast(`On-chain authorization failed: ${getErrorMessage(error)}`);
+        return;
+      }
+    }
+
     setNgos((current) => current.map((ngo, ngoIndex) => (
       ngoIndex === index ? { ...ngo, st: status } : ngo
     )));
-    toast(status === 'approved' ? 'NGO verified. It can now start campaigns.' : 'Application rejected.');
+    toast(
+      status === 'approved'
+        ? `Approved ${targetNgo.name}! They can now create campaigns.`
+        : `Application for ${targetNgo.name} disapproved.`
+    );
   };
 
   const authorizeNgo = async (address) => {
@@ -901,10 +969,12 @@ export default function App() {
             account={account}
             demo={demo}
             campaigns={campaigns}
+            ngos={ngos}
             onConnect={connect}
             onProof={submitProof}
             onClaim={claimSeed}
             onPublish={publish}
+            onApplyNgo={applyNgo}
             isVerifiedNgo={isVerifiedNgo}
           />
         )}

@@ -1,3 +1,4 @@
+import { getIPFSUrl } from '../services/ipfs.js';
 import { useState } from 'react';
 import CampaignReceipt from './CampaignReceipt.jsx';
 
@@ -86,21 +87,52 @@ export default function AdminPage({
             </label>
             <button className="btn go">Verify NGO</button>
           </form>
-          {ngos.map((ngo, index) => (
-            <div key={ngo.name}>
-              <div className="ln"><span>{ngo.name}</span><i /><span>{ngo.w}</span></div>
+                    {ngos.map((ngo, index) => (
+            <div className="ngo-app-card" key={ngo.w || ngo.name}>
+              <div className="ln">
+                <b>{ngo.name}</b>
+                <i />
+                <span className="mono-sub" title={ngo.w}>{short(ngo.w)}</span>
+              </div>
+              {ngo.goals && (
+                <div className="app-detail-block">
+                  <small className="app-detail-label">MISSION & GOALS:</small>
+                  <p className="app-detail-text">{ngo.goals}</p>
+                </div>
+              )}
+              {ngo.docCid ? (
+                <div className="app-detail-block">
+                  <small className="app-detail-label">DOCUMENT:</small>{' '}
+                  <a
+                    href={getIPFSUrl(ngo.docCid)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="doc-ipfs-link"
+                  >
+                    📄 {ngo.docName || 'View document on IPFS'} ↗
+                  </a>
+                </div>
+              ) : ngo.docName ? (
+                <div className="app-detail-block">
+                  <small className="app-detail-label">DOCUMENT:</small>{' '}
+                  <span className="doc-name">📄 {ngo.docName}</span>
+                </div>
+              ) : null}
+
               {ngo.st === 'pending' ? (
                 <div className="admin-actions">
-                  <button className="btn yes" onClick={() => onNgoStatus(index, 'approved')}>Verify</button>
-                  <button className="btn no" onClick={() => onNgoStatus(index, 'rejected')}>Reject</button>
+                  <button className="btn yes" onClick={() => onNgoStatus(index, 'approved')}>Approve</button>
+                  <button className="btn no" onClick={() => onNgoStatus(index, 'rejected')}>Disapprove</button>
                 </div>
               ) : (
-                <div className="text-right">
-                  <span className={`stamp ${ngo.st === 'approved' ? 'ok' : ''}`}>
-                    {ngo.st === 'approved' ? 'VERIFIED' : ngo.st === 'revoked' ? 'REVOKED' : 'REJECTED'}
+                <div className="text-right admin-status-row">
+                  <span className={`stamp ${ngo.st === 'approved' ? 'ok' : 'no'}`}>
+                    {ngo.st === 'approved' ? 'VERIFIED' : ngo.st === 'revoked' ? 'REVOKED' : 'DISAPPROVED'}
                   </span>
-                  {ngo.st === 'approved' && (
+                  {ngo.st === 'approved' ? (
                     <button className="btn no" onClick={() => onRevokeNgo(ngo.w)}>Revoke</button>
+                  ) : (
+                    <button className="btn yes" onClick={() => onNgoStatus(index, 'approved')}>Approve</button>
                   )}
                 </div>
               )}

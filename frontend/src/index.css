@@ -751,3 +751,143 @@ input[type='file'] {
     margin-top: 0;
   }
 }
+
+
+/* NGO Application and Admin Review Styles */
+.ngo-app-card {
+  border-bottom: 1px dashed var(--rule);
+  padding: 14px 0;
+}
+
+.ngo-app-card:last-child {
+  border-bottom: none;
+}
+
+.mono-sub {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.app-detail-block {
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.app-detail-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--soft);
+  margin-bottom: 2px;
+}
+
+.app-detail-text,
+.app-goals-box,
+.app-goals-text {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 8px 10px;
+  border-left: 3px solid var(--ink);
+  margin: 4px 0;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.doc-ipfs-link {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.doc-ipfs-link:hover {
+  color: #000;
+}
+
+.doc-name {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+}
+
+.admin-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.application-card {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.ngo-apply-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.ngo-apply-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-details-grid {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.app-field strong {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: 2px;
+}
+
+.app-field-val {
+  font-size: 14px;
+}
+
+.file-hint {
+  font-size: 12px;
+  color: var(--soft);
+  font-family: 'Courier Prime', monospace;
+  margin-top: 4px;
+}
+
+.app-status-callout {
+  background: var(--paper);
+  border: 2px dashed var(--ink);
+  padding: 12px 14px;
+  margin: 14px 0 16px;
+  border-radius: 2px;
+}
+
+.callout-header {
+  font-size: 14px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--wash);
+}
+
+.callout-body {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.callout-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--soft);
+  font-style: italic;
+}

@@ -1,3 +1,4 @@
+import NgoApplicationForm from './NgoApplicationForm.jsx';
 import CampaignReceipt from './CampaignReceipt.jsx';
 import CampaignForm from './CampaignForm.jsx';
 
@@ -29,10 +30,12 @@ export default function NgoPage({
   account,
   demo,
   campaigns,
+  ngos = [],
   onConnect,
   onProof,
   onClaim,
   onPublish,
+  onApplyNgo,
   isVerifiedNgo,
 }) {
   if (!account) return <Gate onConnect={onConnect} />;
@@ -135,9 +138,13 @@ export default function NgoPage({
         }) : <p className="empty">No campaigns yet. Start one below.</p>}
       </div>
       {!isVerifiedNgo ? (
-        <div className="empty">
-          <h3>Campaign creation is restricted</h3>
-          <p className="sub">The connected wallet must be authorized by the platform admin before it can create campaigns.</p>
+        <div className="campaign-create">
+          <NgoApplicationForm
+            account={account}
+            existingApplication={ngos.find((n) => n.w?.toLowerCase() === account?.toLowerCase())}
+            onSubmit={onApplyNgo}
+            demo={demo}
+          />
         </div>
       ) : (
         <div className="campaign-create"><CampaignForm onPublish={onPublish} /></div>
