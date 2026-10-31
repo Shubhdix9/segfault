@@ -3,7 +3,7 @@ export const CONFIG = {
   enableLiveTransactions: import.meta.env.VITE_ENABLE_LIVE_TRANSACTIONS === 'true',
   admin: import.meta.env.VITE_ADMIN_ADDRESS || '',
   chainId: Number(import.meta.env.VITE_CHAIN_ID || 80002),
-  rpcUrl: import.meta.env.VITE_RPC_URL || 'https://rpc-amoy.polygon.technology',
+  rpcUrl: import.meta.env.VITE_RPC_URL || 'https://polygon-amoy.drpc.org',
 };
 
 export const ABI = [

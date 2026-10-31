@@ -8,7 +8,7 @@ function storageLabel(storage) {
   return storage.storageMode === 'pinata' ? 'Pinata IPFS live' : 'Mock IPFS storage';
 }
 
-export default function DemoConsole({ account, onRoleChange, onReset, onRefreshStorage, storage }) {
+export default function DemoConsole({ account, onRoleChange, onReset, onLogout, onRefreshStorage, storage }) {
   const activeRole = roles.find(([, actor]) => actor.address.toLowerCase() === account?.toLowerCase())?.[0];
   const storageIsLive = storage?.online && storage.pinataConfigured && storage.storageMode === 'pinata';
 
@@ -53,6 +53,7 @@ export default function DemoConsole({ account, onRoleChange, onReset, onRefreshS
           ))}
         </div>
         <button className="demo-reset" type="button" onClick={onReset}>Reset demo</button>
+        <button className="demo-reset demo-exit" type="button" onClick={onLogout}>Exit demo</button>
       </div>
 
       <ol className="demo-journey">

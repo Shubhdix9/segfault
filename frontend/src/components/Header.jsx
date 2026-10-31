@@ -2,7 +2,7 @@ function short(address) {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
-export default function Header({ account, demo, onConnect }) {
+export default function Header({ account, demo, onConnect, onEnterDemo, onLogout, showDemoOption }) {
   const activeView = window.location.hash.slice(1) || 'explore';
 
   return (
@@ -14,9 +14,29 @@ export default function Header({ account, demo, onConnect }) {
         <a href="#ngo" aria-current={activeView === 'ngo' ? 'page' : undefined}>NGO</a>
         <a href="#admin" aria-current={activeView === 'admin' ? 'page' : undefined}>Admin</a>
       </nav>
-      <button className="btn go" onClick={onConnect}>
-        {account ? `${short(account)}${demo ? ' (demo)' : ''}` : 'Connect wallet'}
-      </button>
+      <div className="header-actions">
+        {account ? (
+          <>
+            <span className="wallet-chip" title={account}>
+              {short(account)}{demo ? ' (demo)' : ''}
+            </span>
+            <button className="btn no logout-btn" onClick={onLogout} type="button">
+              {demo ? 'Exit demo' : 'Disconnect'}
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn go" onClick={onConnect} type="button">
+              Connect wallet
+            </button>
+            {showDemoOption && (
+              <button className="btn logout-btn" onClick={onEnterDemo} type="button">
+                Demo mode
+              </button>
+            )}
+          </>
+        )}
+      </div>
     </header>
   );
 }

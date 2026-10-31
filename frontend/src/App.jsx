@@ -28,7 +28,16 @@ const demoStoreKey = 'wellchain-presentation-demo-v2';
 const availableViews = ['explore', 'portfolio', 'ngo', 'admin'];
 
 function getErrorMessage(error) {
-  return error?.reason || error?.shortMessage || error?.message || 'Unknown error';
+  if (error?.code === 4001 || error?.info?.error?.code === 4001) {
+    return 'User rejected the request in wallet.';
+  }
+  if (error?.message?.includes('network changed')) {
+    return 'Network changed. Reconnecting...';
+  }
+  if (error?.message?.includes('could not coalesce error') || error?.code === -32002) {
+    return 'MetaMask prompt already pending. Please open MetaMask extension.';
+  }
+  return error?.reason || error?.shortMessage || error?.info?.error?.message || error?.message || 'Unknown error';
 }
 
 function short(address) {
@@ -207,6 +216,8 @@ export default function App() {
   useEffect(() => {
     if (!hasLiveRegistry) return;
     refreshRegistry(null, null).catch((error) => {
+      // Ignore network changed transient errors during initial mount
+      if (error?.message?.includes('network changed')) return;
       toast(`Could not load the campaign registry: ${getErrorMessage(error)}`);
     });
   }, [refreshRegistry, toast]);
@@ -225,14 +236,16 @@ export default function App() {
         return;
       }
       try {
-        const provider = new BrowserProvider(wallet);
+        const provider = new BrowserProvider(wallet, 'any');
         const activeSigner = await provider.getSigner(accounts[0]);
         const activeAccount = await activeSigner.getAddress();
         signerRef.current = activeSigner;
         setAccount(activeAccount);
         if (hasLiveRegistry) await refreshRegistry(activeAccount, activeSigner);
       } catch (error) {
-        toast(`Could not update the connected wallet: ${getErrorMessage(error)}`);
+        if (!error?.message?.includes('network changed')) {
+          toast(`Could not update the connected wallet: ${getErrorMessage(error)}`);
+        }
       }
     };
 
@@ -240,7 +253,8 @@ export default function App() {
       void refreshWalletAccount(accounts);
     };
     const handleChainChanged = (chainId) => {
-      if (hasLiveRegistry && Number.parseInt(chainId, 16) !== CONFIG.chainId) {
+      const newChainId = Number.parseInt(chainId, 16);
+      if (hasLiveRegistry && newChainId !== CONFIG.chainId) {
         signerRef.current = null;
         setAccount(null);
         setVotes({});
@@ -272,28 +286,46 @@ export default function App() {
     }
 
     try {
-      const provider = new BrowserProvider(window.ethereum);
-      await provider.send('eth_requestAccounts', []);
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (!accounts || !accounts.length) {
+        throw new Error('No accounts selected in wallet.');
+      }
+
       if (hasLiveRegistry) {
         const desiredChain = `0x${CONFIG.chainId.toString(16)}`;
         try {
-          await provider.send('wallet_switchEthereumChain', [{ chainId: desiredChain }]);
-        } catch (error) {
-          if (error.code !== 4902 || CONFIG.chainId !== 80002) throw error;
-          await provider.send('wallet_addEthereumChain', [{
-            chainId: desiredChain,
-            chainName: 'Polygon Amoy',
-            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-            rpcUrls: [CONFIG.rpcUrl],
-            blockExplorerUrls: ['https://amoy.polygonscan.com'],
-          }]);
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChain }],
+          });
+        } catch (switchError) {
+          if (switchError?.code === 4902 || switchError?.data?.originalError?.code === 4902) {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: desiredChain,
+                chainName: 'Polygon Amoy',
+                nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                rpcUrls: [
+                  'https://polygon-amoy.drpc.org',
+                  'https://polygon-amoy-rpc.blockreq.com/v1/rpc/public',
+                  'https://polygon-amoy.gateway.tenderly.co',
+                  'https://api.zan.top/polygon-amoy',
+                  CONFIG.rpcUrl,
+                ].filter(Boolean),
+                blockExplorerUrls: ['https://amoy.polygonscan.com'],
+              }],
+            });
+          } else {
+            throw switchError;
+          }
         }
-        const network = await provider.getNetwork();
-        if (Number(network.chainId) !== CONFIG.chainId) {
-          throw new Error(`Switch your wallet to chain ${CONFIG.chainId} and try again.`);
-        }
-        const code = await provider.getCode(CONFIG.address);
-        if (code === '0x') throw new Error('No contract is deployed at VITE_CONTRACT_ADDRESS on this network.');
+      }
+
+      const provider = new BrowserProvider(window.ethereum, 'any');
+      const network = await provider.getNetwork();
+      if (hasLiveRegistry && Number(network.chainId) !== CONFIG.chainId) {
+        throw new Error(`Switch your wallet to chain ${CONFIG.chainId} and try again.`);
       }
 
       const connectedSigner = await provider.getSigner();
@@ -348,6 +380,28 @@ export default function App() {
     setDonationCampaign(null);
     setDemo(true);
     toast('Presentation demo reset to its starting state.');
+  };
+
+  const logout = () => {
+    signerRef.current = null;
+    setAccount(null);
+    setVotes({});
+    setIsVerifiedNgo(false);
+    window.localStorage.removeItem(demoStoreKey);
+    setDemo(false);
+    toast(demo ? 'Exited demo mode. Connect a wallet to continue.' : 'Wallet disconnected.');
+  };
+
+  const enterDemo = () => {
+    signerRef.current = null;
+    const initialAccount = demoActors.donor.address;
+    setAccount(initialAccount);
+    setCampaigns(initialCampaigns.map((campaign) => campaignForActor(campaign, initialAccount)));
+    setNgos(initialNgos);
+    setVotes({});
+    setIsVerifiedNgo(false);
+    setDemo(true);
+    toast('Entered presentation demo mode.');
   };
 
   const openDonation = (campaign) => {
@@ -812,12 +866,20 @@ export default function App() {
 
   return (
     <div className="wrap">
-      <Header account={account} demo={demo} onConnect={connect} />
+      <Header
+        account={account}
+        demo={demo}
+        onConnect={connect}
+        onEnterDemo={enterDemo}
+        onLogout={logout}
+        showDemoOption={!demo}
+      />
       {demo && (
         <DemoConsole
           account={account}
           onRoleChange={selectDemoRole}
           onReset={resetDemo}
+          onLogout={logout}
           onRefreshStorage={() => refreshStorage(true)}
           storage={storage}
         />

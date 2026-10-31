@@ -1,8 +1,15 @@
-import { Contract, JsonRpcProvider, formatEther } from 'ethers';
+import { Contract, FallbackProvider, JsonRpcProvider, formatEther } from 'ethers';
 import { ABI, CONFIG } from '../data/WellChain.js';
 import { fetchIPFSJSON } from './ipfs.js';
 
 const milestoneStatuses = ['pending', 'voting', 'approved', 'rejected', 'disbursed'];
+
+const AMOY_FALLBACK_RPCS = [
+  'https://polygon-amoy.drpc.org',
+  'https://polygon-amoy-rpc.blockreq.com/v1/rpc/public',
+  'https://polygon-amoy.gateway.tenderly.co',
+  'https://api.zan.top/polygon-amoy',
+];
 
 function asPol(value) {
   return Number(Number(formatEther(value)).toFixed(6));
@@ -14,7 +21,15 @@ function short(address) {
 
 export function createReadContract() {
   if (!CONFIG.address) throw new Error('Set VITE_CONTRACT_ADDRESS to read the deployed registry.');
-  return new Contract(CONFIG.address, ABI, new JsonRpcProvider(CONFIG.rpcUrl, CONFIG.chainId));
+  const rpcList = [...new Set([CONFIG.rpcUrl, ...AMOY_FALLBACK_RPCS].filter(Boolean))];
+  const providers = rpcList.map((url, index) => ({
+    provider: new JsonRpcProvider(url, CONFIG.chainId, { staticNetwork: true }),
+    priority: index + 1,
+    weight: 1,
+    stallTimeout: 2500,
+  }));
+  const provider = providers.length === 1 ? providers[0].provider : new FallbackProvider(providers, 1);
+  return new Contract(CONFIG.address, ABI, provider);
 }
 
 export async function readRegistry(contract, account) {

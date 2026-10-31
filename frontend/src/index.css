@@ -106,6 +106,28 @@ nav a[aria-current='page'] {
   color: #fff;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wallet-chip {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--wash);
+  color: #fff;
+  border-radius: 2px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+}
+
+.logout-btn {
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
 .btn {
   border: 2px solid var(--ink);
   background: var(--paper);
@@ -264,6 +286,15 @@ nav a[aria-current='page'] {
   align-self: stretch;
   text-align: center;
   font-weight: 700;
+}
+
+.demo-reset.demo-exit {
+  background: #ffc9bd;
+  color: var(--ink);
+}
+
+.demo-reset.demo-exit:hover {
+  background: #ffb4a2;
 }
 
 .demo-journey {

@@ -82,7 +82,7 @@ export default function NgoPage({
                   {!campaign.seedClaimed && (
                     <button
                       className="btn go"
-                      disabled={campaign.canClaimSeed ?? campaign.raised < campaign.seedAmount}
+                      disabled={campaign.canClaimSeed !== undefined ? !campaign.canClaimSeed : campaign.raised < campaign.seedAmount}
                       onClick={() => onClaim(campaign.id)}
                     >
                       Claim seed advance
